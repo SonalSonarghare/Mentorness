@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fraud Detection</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <img src="static/left-img.jpg" alt="Left Image" class="left-image">
+        <img src="static/fastag.jpg" alt="Top Image" class="Top-image">
+        <h2><span class="highlight-color">Fraud</span> <span class="secondary-color">Detection</span></h2>
+        <form id="prediction-form">
+            <label for="Vehicle_Type">Vehicle Type:</label>
+            <select id="Vehicle_Type" name="Vehicle_Type">
+                <option value="Bus">Bus</option>
+                <option value="Car">Car</option>
+                <option value="Motorcycle">Motorcycle</option>
+                <option value="SUV">SUV</option>
+                <option value="Sedan">Sedan</option>
+                <option value="Truck">Truck</option>
+                <option value="Van">Van</option>
+            </select><br>
+
+            <label for="Lane_Type">Lane Type:</label>
+            <select id="Lane_Type" name="Lane_Type">
+                <option value="Regular">Regular</option>
+                <option value="Express">Express</option>
+            </select><br>
+
+            <label for="Geographical_Location">Geographical Location:</label>
+            <input type="text" id="Geographical_Location" name="Geographical_Location"><br>
+
+            <label for="Vehicle_Plate_Number">Vehicle Plate Number:</label>
+            <input type="text" id="Vehicle_Plate_Number" name="Vehicle_Plate_Number"><br>
+
+            <label for="Vehicle_Dimensions">Vehicle Dimensions:</label>
+            <select id="Vehicle_Dimensions" name="Vehicle_Dimensions">
+                <option value="Large">Large</option>
+                <option value="Medium">Medium</option>
+                <option value="Small">Small</option>
+            </select><br>
+
+            <label for="FastagID">Fastag ID:</label>
+            <input type="text" id="FastagID" name="FastagID"><br>
+
+            <label for="TollBoothID">TollBooth ID:</label>
+            <select id="TollBoothID" name="TollBoothID">
+                <option value="B-102">B-102</option>
+                <option value="A-101">A-101</option>
+                <option value="C-103">C-103</option>
+                <option value="D-106">D-106</option>
+                <option value="D-105">D-105</option>
+                <option value="D-104">D-104</option>
+            </select><br>
+
+            <label for="Transaction_Amount">Transaction Amount:</label>
+            <input type="text" id="Transaction_Amount" name="Transaction_Amount"><br>
+
+            <label for="Amount_paid">Amount Paid:</label>
+            <input type="text" id="Amount_paid" name="Amount_paid"><br>
+
+            <label for="Vehicle_Speed">Vehicle Speed:</label>
+            <input type="text" id="Vehicle_Speed" name="Vehicle_Speed"><br>
+
+            <label for="Hour">Hour:</label>
+            <input type="text" id="Hour" name="Hour"><br>
+
+            <label for="DayOfWeek">DayOfWeek:</label>
+            <input type="text" id="DayOfWeek" name="DayOfWeek"><br>
+            
+            <label for="Month">Month:</label>
+            <input type="text" id="Month" name="Month"><br>
+
+            <button type="button" onclick="submitForm()">Submit</button>
+        </form>
+        <img src="static/right-img.jpg" alt="Right Image" class="right-image">
+        <div id="result"></div>
+    </div>
+    <script>
+        async function submitForm() {
+            const form = document.getElementById('prediction-form');
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => (data[key] = value));
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            const resultElement = document.getElementById('result');
+            if ('Fraud_indicator' in result && 'message' in result) {
+                const color = result.Fraud_indicator === 1 ? 'red' : 'green';
+                resultElement.innerHTML = `
+                    <div>
+                        <span style="color: ${color};">Fraud Indicator: ${result.Fraud_indicator === 1 ? 'Fraud' : 'Not Fraud'}</span><br>
+                        <span style="color: black;">${result.message}</span>
+                    </div>
+                `;
+            } else {
+                resultElement.innerHTML = 'Error: ' + result.error;
+                resultElement.style.color = 'black';
+            }
+        }
+    </script>
+</body>
+</html>
